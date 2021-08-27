@@ -1,12 +1,25 @@
 import { GraphQLClient } from 'graphql-request';
-
+import ProductCTA from '../../components/ProductCTA';
 
 const graphcms = new GraphQLClient(
     'https://api-us-east-1.graphcms.com/v2/ckpnf7orlj3qa01w69nohcd4b/master'
   );
   
 
+  const shopify = new GraphQLClient(
+    'https://echelon-store.myshopify.com/api/2021-07/graphql.json',
+    {headers: {
+      'X-Shopify-Storefront-Access-Token': 'b785f4ee1f8ba77ab66dce258f1b4b8b'
+    }
+    });
+
+
+
+
+
+  
   export async function getStaticProps({ params }) {
+
     const { partnerPages } = await graphcms.request(
       `
       query PartnerPageQuery($slug: String!) {
@@ -27,10 +40,56 @@ const graphcms = new GraphQLClient(
         slug: params.slug,
       }
     );
+
+
+
+
+    const  partnerProducts  = await  shopify.request(
+      `
+      {
+        collectionByHandle(handle: "partnerProducts") {
+          products(first: 20) {
+            edges {
+              node {
+                description
+                variants(first: 1){
+                  edges{
+                    node{
+                      id
+                      
+                    }
+                  }
+                }
+                id
+                
+                priceRange{
+                  maxVariantPrice{
+                    amount
+                  }
+                }
+                handle
+                images(first:1){
+                  edges{
+                    node{
+                      originalSrc
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `,
+    
+    );
+
+
   
     return {
       props: {
         partnerPages ,
+        partnerProducts
       },
     };
 
@@ -38,11 +97,8 @@ const graphcms = new GraphQLClient(
   }
 
 
-///first query to get context
 
 export async function getStaticPaths() {
-
-    
     const products  = await graphcms.request(`
       {
         partnerPages{
@@ -53,7 +109,6 @@ export async function getStaticPaths() {
     `);
   
     return {
-        
       paths: products.partnerPages.map(({ slug }) => ({
         params: { slug },
       })),
@@ -63,13 +118,28 @@ export async function getStaticPaths() {
     
   }
   
-const PartnerPageTemplate =({ partnerPages }) => {
-    console.log( partnerPages )
+const PartnerPageTemplate =({ partnerPages, partnerProducts }) => {
+    console.log( partnerPages[0])
+    console.log( "partnerProducts",partnerProducts)
+   const productinfo = partnerProducts.collectionByHandle.products.edges
+  
 
     return(
    <>
+
       <h1>Testing</h1>
-      
+      <div className="contentWrapper">
+      {productinfo.map((product, index) => (
+            <ProductCTA
+              product={product}
+              key={index}
+              index={index}
+              //toggleCart={toggleCartModal}
+            />
+          ))}
+</div>
+
+
     </>
     );
   };
