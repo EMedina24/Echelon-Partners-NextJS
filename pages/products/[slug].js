@@ -2,7 +2,7 @@ import { GraphQLClient } from 'graphql-request';
 import ProductCTA from '../../components/ProductCTA';
 import useSWR from 'swr'
 import { request } from "graphql-request";
-
+import { useState, useEffect } from 'react'
 
 
 const graphcms = new GraphQLClient(
@@ -163,6 +163,12 @@ export async function getStaticPaths() {
   
 const PartnerPageTemplate =({ partnerPages, partnerProducts }) => {
 
+const [posts, setPosts] = useState()
+
+
+
+
+
 
   const { data: partners, error } = useSWR(countriesQuery, (query) =>
   shopify.request(query)
@@ -173,11 +179,11 @@ console.log(partners);
 
    let productinfo 
    
-   partnerProducts.collectionByHandle.products.edges
+  
   
 
     if(!partners) return <div>...loading</div>
-    if(partners) productinfo = partnerProducts.collectionByHandle.products.edges
+    if(partners) productinfo = partners.collectionByHandle.products.edges
 
 
     return(
