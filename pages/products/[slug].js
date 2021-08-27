@@ -1,5 +1,9 @@
 import { GraphQLClient } from 'graphql-request';
 import ProductCTA from '../../components/ProductCTA';
+import useSWR from 'swr'
+import { request } from "graphql-request";
+
+
 
 const graphcms = new GraphQLClient(
     'https://api-us-east-1.graphcms.com/v2/ckpnf7orlj3qa01w69nohcd4b/master'
@@ -14,12 +18,10 @@ const graphcms = new GraphQLClient(
     });
 
 
-
-
+   
 
   
   export async function getStaticProps({ params }) {
-
     const { partnerPages } = await graphcms.request(
       `
       query PartnerPageQuery($slug: String!) {
@@ -40,7 +42,6 @@ const graphcms = new GraphQLClient(
         slug: params.slug,
       }
     );
-
 
 
 
@@ -89,13 +90,13 @@ const graphcms = new GraphQLClient(
     return {
       props: {
         partnerPages ,
-        partnerProducts
+        partnerProducts,
+       
       },
     };
 
     
   }
-
 
 
 export async function getStaticPaths() {
@@ -116,13 +117,68 @@ export async function getStaticPaths() {
     };
 
     
+
+  }
+
+  const countriesQuery = `
+  {
+    collectionByHandle(handle: "partnerProducts") {
+      products(first: 20) {
+        edges {
+          node {
+            description
+            variants(first: 1){
+              edges{
+                node{
+                  id
+                  
+                }
+              }
+            }
+            id
+            
+            priceRange{
+              maxVariantPrice{
+                amount
+              }
+            }
+            handle
+            images(first:1){
+              edges{
+                node{
+                  originalSrc
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
   
-const PartnerPageTemplate =({ partnerPages, partnerProducts }) => {
-    console.log( partnerPages[0])
-    console.log( "partnerProducts",partnerProducts)
-   const productinfo = partnerProducts.collectionByHandle.products.edges
   
+  `
+
+
+  
+const PartnerPageTemplate =({ partnerPages, partnerProducts }) => {
+
+
+  const { data: partners, error } = useSWR(countriesQuery, (query) =>
+  shopify.request(query)
+);
+
+console.log({ partners, error });
+console.log(partners);
+
+   let productinfo 
+   
+   partnerProducts.collectionByHandle.products.edges
+  
+
+    if(!partners) return <div>...loading</div>
+    if(partners) productinfo = partnerProducts.collectionByHandle.products.edges
+
 
     return(
    <>

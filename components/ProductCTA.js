@@ -1,9 +1,22 @@
 import React from "react";
 import { useState } from "react";
+import { GraphQLClient } from 'graphql-request';
 
 
-export default function ProductCTA({ product, index, toggleCart }) {
-    console.log( 'productPage',product)
+
+
+
+
+
+
+
+
+
+export default function ProductCTA({  product ,index, toggleCart }) {
+
+
+
+
   const [showModal, setShowModal] = React.useState(false);
  
   const [bikeColor, setBikeColor] = useState("black");
