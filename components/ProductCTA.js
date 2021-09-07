@@ -1,10 +1,15 @@
 import React from "react";
 import { useState } from "react";
 import { GraphQLClient } from 'graphql-request';
+import Client from 'shopify-buy';
+import { useCommerce } from 'nextjs-commerce-shopify';
+import { useAddItem } from 'nextjs-commerce-shopify';
 
-
-
-
+// Initializing a client to return content in the store's primary language
+//const client = Client.buildClient({
+  //domain: 'https://echelon-store.myshopify.com',
+ // storefrontAccessToken: 'b785f4ee1f8ba77ab66dce258f1b4b8b'
+//});
 
 
 
@@ -14,11 +19,10 @@ import { GraphQLClient } from 'graphql-request';
 
 export default function ProductCTA({  product ,index, toggleCart }) {
 
+  const addItem = useAddItem();
 
-
-
+  const { checkout, shop } = useCommerce();
   const [showModal, setShowModal] = React.useState(false);
- 
   const [bikeColor, setBikeColor] = useState("black");
   const [currentBike, setCurrentBike] = useState(
     "Z2lkOi8vc2hvcGlmeS9Qcm9kdWN0VmFyaWFudC8yOTk3NjU4MjU1MzY4Mg=="
@@ -28,16 +32,24 @@ export default function ProductCTA({  product ,index, toggleCart }) {
 
 
 
+console.log('shop---->',shop)
+console.log('checkout---->',checkout)
+console.log('product--->',product)
 
-  
-
-  const [openTab, setOpenTab] = React.useState(1);
+let quantity = 1
 
 
-  //toggle learnmore modal
-  const toggleLearnMore = () => {
-    setShowModal(!showModal);
-  };
+const addToCart = async (variantId) => {
+  alert (variantId)
+  await addItem({
+    variantId,
+    quantity
+  });
+};
+
+
+
+
 
 
 
@@ -137,37 +149,13 @@ export default function ProductCTA({  product ,index, toggleCart }) {
     }
   };
 
-  let lifeStyleImage;
-  let itemWeight;
-  let itemHeight;
-  let hasTablet;
+  
   let tagLine;
 
-  const ex3LifeStylePic =
-    "//cdn.shopify.com/s/files/1/2422/9487/files/Connect_EX-3_-_Lifestyle_6-1201x801-d21b45d_1024x.jpg?v=1617886078";
-  const ex5sLifeStylePic =
-    "//cdn.shopify.com/s/files/1/2422/9487/files/200717_Echelon_EX5S0473-1200x800-5b2df79_1024x.jpg?v=1617885563";
-  const ex5LifeStylePic =
-    "//cdn.shopify.com/s/files/1/2422/9487/files/190624_Echelon_Bike1108-1200x800-5b2df79_1024x.jpg?v=1617885581";
-  const rowerLifeStylePic =
-    "//cdn.shopify.com/s/files/1/2422/9487/files/Row_-_Lifestyle_1-1201x801-d21b45d_1024x.jpg?v=1617885640";
-  const strideLifeStylePic =
-    "//cdn.shopify.com/s/files/1/2422/9487/files/Echelon_Stride_-_Lifestyle_-_Class_Screen_1-1201x801-d21b45d_1024x.jpg?v=1617885704";
-  const reflectLifeStylePic =
-    "//cdn.shopify.com/s/files/1/2422/9487/files/Reflect_Touch_-_Lifestyle_4-1201x801-d21b45d_1024x.jpg?v=1617885757";
-  const ex7sLifeStylePic =
-    "//cdn.shopify.com/s/files/1/2422/9487/files/Connect_EX-7s_-_Lifestyle_11-801x1201-dc98797_1024x.jpg?v=1617885786";
-  const rowsLifeStylePic =
-    "//cdn.shopify.com/s/files/1/2422/9487/files/RowS_-_Lifestyle_11-1200x800-5b2df79_1024x.jpg?v=1617885860";
-  const row7LifeStylePic =
-    "//cdn.shopify.com/s/files/1/2422/9487/files/Row7s_Lifestyle3-1201x801-83b3acf.png?v=1620997368";
-  const exProLifeStylePic =
-    "//cdn.shopify.com/s/files/1/2422/9487/files/EX-PRO_UCFGym1126_copy_2x_720x720_crop_center_f622e9c5-2a8b-4366-81f7-9a0f29a66105_1600x.jpg?v=1614804534";
-  const reflect40LifeStylePic =
-    "https://cdn.shopify.com/s/files/1/2422/9487/products/210428_Reflect_Upstairs0170_Square_580x640.jpg?v=1621515088";
+ 
 
   
-  let cartURL;
+  
 
   /********Ex3 gallery markup ; currently will only show on EX-3 PDP. ************ */
   const multipic = (selectedBike) => {
@@ -219,7 +207,7 @@ export default function ProductCTA({  product ,index, toggleCart }) {
               style={{
                 width: "30%",
                 minWidth: "350px",
-                height: "350px",
+                height: "400px",
                 overflow: "hidden",
                 order: "2",
               }}
@@ -242,7 +230,7 @@ export default function ProductCTA({  product ,index, toggleCart }) {
                 {tagLine != null ? tagLine : "Echelon Fitness"}
               </h2>
               <h1 className="text-gray-900 text-4xl title-font font-medium mb-1">
-                {product.node.handle}
+                {product.node.title}
               </h1>
             
               <div className="flex mb-4"></div>
@@ -263,10 +251,10 @@ export default function ProductCTA({  product ,index, toggleCart }) {
                     style={{ border: "2px solid #716c6c", width: "60px" }}
                   />
                   <a
-                   // onClick={() => {
-                      //addToCart(product.title);
-                     // toggleCart();
-                   // }}
+                   onClick={() => {
+                    addToCart(product.node.variants.edges[0].node.id);
+                     
+                   }}
                     target="_self"
                     title="Shop Connect Bikes"
                     aria-label="Shop Connect Bikes"

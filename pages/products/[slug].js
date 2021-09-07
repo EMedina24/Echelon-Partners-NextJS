@@ -126,12 +126,12 @@ export async function getStaticPaths() {
       products(first: 20) {
         edges {
           node {
+            title
             description
-            variants(first: 1){
+            variants(first: 3){
               edges{
                 node{
                   id
-                  
                 }
               }
             }
@@ -165,11 +165,6 @@ const PartnerPageTemplate =({ partnerPages, partnerProducts }) => {
 
 const [posts, setPosts] = useState()
 
-
-
-
-
-
   const { data: partners, error } = useSWR(countriesQuery, (query) =>
   shopify.request(query)
 );
@@ -199,7 +194,7 @@ console.log(partners);
               //toggleCart={toggleCartModal}
             />
           ))}
-</div>
+           </div>
 
 
     </>
